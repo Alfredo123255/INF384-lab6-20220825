@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+
+# Cobertura de Jest
+coverage/
+
+# Logs
+npm-debug.log*
+*.log
+
+# Variables de entorno locales
+.env
+
+# Sistema operativo y editores
+.DS_Store
+.vscode/
+.idea/

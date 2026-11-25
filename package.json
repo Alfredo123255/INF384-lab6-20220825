@@ -1,0 +1,22 @@
+{
+  "name": "malla-inf",
+  "version": "1.0.0",
+  "description": "Consulta de cursos y requisitos de la malla de Ingeniería Informática (ciclos 5 a 10)",
+  "private": true,
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "lodash": "4.17.20"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.0"
+  }
+}
