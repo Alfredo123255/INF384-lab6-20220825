@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Malla INF</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    h1 { margin-bottom: 0.25rem; }
+    label { font-weight: 600; margin-right: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #ddd; }
+    th { background: #f3f3f3; }
+    td.num { text-align: right; }
+    #mensaje { margin-top: 1rem; color: #a33; }
+  </style>
+</head>
+<body>
+  <h1>Malla INF</h1>
+  <p>Cursos de los ciclos 5 a 10 de Ingeniería Informática.</p>
+
+  <label for="ciclo">Ciclo</label>
+  <select id="ciclo">
+    <option value="">Todos</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+  </select>
+
+  <p id="mensaje"></p>
+
+  <table id="tabla" hidden>
+    <thead>
+      <tr><th>Código</th><th>Nombre</th><th>Créditos</th><th>Ciclo</th><th>Tipo</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const selector = document.getElementById('ciclo');
+    const tabla = document.getElementById('tabla');
+    const cuerpo = tabla.querySelector('tbody');
+    const mensaje = document.getElementById('mensaje');
+
+    function celda(texto, clase) {
+      const td = document.createElement('td');
+      td.textContent = texto;
+      if (clase) td.className = clase;
+      return td;
+    }
+
+    function mostrarMensaje(texto) {
+      mensaje.textContent = texto;
+      tabla.hidden = true;
+    }
+
+    async function cargarCursos() {
+      const ciclo = selector.value;
+      const url = ciclo ? `/cursos?ciclo=${ciclo}` : '/cursos';
+
+      try {
+        const res = await fetch(url);
+        if (res.status === 404) {
+          mostrarMensaje('API de cursos aún no implementada');
+          return;
+        }
+        if (!res.ok) {
+          const cuerpoError = await res.json().catch(() => ({}));
+          mostrarMensaje(cuerpoError.error || `Error ${res.status}`);
+          return;
+        }
+
+        const cursos = await res.json();
+        cuerpo.replaceChildren();
+        for (const curso of cursos) {
+          const fila = document.createElement('tr');
+          fila.append(
+            celda(curso.id),
+            celda(curso.name),
+            celda(Number(curso.credits).toFixed(1), 'num'),
+            celda(curso.cycle ?? 'Electivo'),
+            celda(curso.type),
+          );
+          cuerpo.append(fila);
+        }
+        mensaje.textContent = cursos.length === 0 ? 'No hay cursos para este ciclo.' : '';
+        tabla.hidden = cursos.length === 0;
+      } catch (err) {
+        mostrarMensaje('No se pudo conectar con el servidor');
+      }
+    }
+
+    selector.addEventListener('change', cargarCursos);
+    cargarCursos();
+  </script>
+</body>
+</html>
