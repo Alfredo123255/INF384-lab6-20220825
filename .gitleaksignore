@@ -1,0 +1,4 @@
+# CATALOGO_API_KEY expuesta en el commit inicial (7506fec). La clave fue rotada el 26/11/2026:
+# el valor del historial ya no es válido y config/ejemplo.env ahora usa un placeholder.
+# Se ignora solo este hallazgo histórico; cualquier secreto nuevo sigue bloqueando el pipeline.
+7506fecff32b342baaa4aa5dcb595bb5ccc75634:config/ejemplo.env:generic-api-key:4
