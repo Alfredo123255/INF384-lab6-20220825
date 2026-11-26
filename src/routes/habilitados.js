@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const repositorio = require('../data/repositorio');
 
 const CODIGO_RE = /^[0-9A-Z]{6}$/;
 
@@ -27,8 +28,15 @@ router.post('/', (req, res, next) => {
       return res.status(400).json({ error: 'código inválido en aprobados' });
     }
 
-    // Calculador will be implemented in Task 3; return placeholder for now
-    return res.json([]);
+    // Calculador
+    const aprobadosSet = new Set(aprobados);
+    const cursos = repositorio.listar();
+    const resultado = cursos.filter(curso => {
+      if (aprobadosSet.has(curso.id)) return false;
+      return curso.prerequisites.every(p => aprobadosSet.has(p));
+    });
+
+    return res.json(resultado);
   } catch (err) {
     next(err);
   }

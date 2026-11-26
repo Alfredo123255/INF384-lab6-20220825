@@ -143,3 +143,86 @@ describe('POST /habilitados — Validador', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('POST /habilitados — Calculador', () => {
+  const repositorio = require('../src/data/repositorio');
+
+  // Req 1.1 — empty aprobados returns all zero-prereq courses
+  test('aprobados [] returns all courses with empty prerequisites', async () => {
+    const res = await request(app)
+      .post('/habilitados')
+      .send({ aprobados: [] });
+
+    expect(res.status).toBe(200);
+    const esperados = repositorio.listar().filter(c => c.prerequisites.length === 0);
+    expect(res.body).toHaveLength(esperados.length);
+    expect(res.body.map(c => c.id).sort()).toEqual(esperados.map(c => c.id).sort());
+  });
+
+  // Req 1.2 — specific aprobados returns exactly 27 results including known IDs
+  test('aprobados [1INF25, 1INF27, 1INF49] returns 27 courses including 1INF29/30/31/32', async () => {
+    const res = await request(app)
+      .post('/habilitados')
+      .send({ aprobados: ['1INF25', '1INF27', '1INF49'] });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(27);
+    const ids = res.body.map(c => c.id);
+    expect(ids).toContain('1INF29');
+    expect(ids).toContain('1INF30');
+    expect(ids).toContain('1INF31');
+    expect(ids).toContain('1INF32');
+  });
+
+  // Req 1.3 — approved courses are excluded from results
+  test('approved course IDs do not appear in the response', async () => {
+    const res = await request(app)
+      .post('/habilitados')
+      .send({ aprobados: ['1INF25', '1INF27', '1INF49'] });
+
+    expect(res.status).toBe(200);
+    const ids = res.body.map(c => c.id);
+    expect(ids).not.toContain('1INF25');
+    expect(ids).not.toContain('1INF27');
+    expect(ids).not.toContain('1INF49');
+  });
+
+  // Req 1.5 — response items include all required fields
+  test('response items include all required Curso fields', async () => {
+    const res = await request(app)
+      .post('/habilitados')
+      .send({ aprobados: [] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBeGreaterThan(0);
+    for (const curso of res.body) {
+      expect(curso).toHaveProperty('id');
+      expect(curso).toHaveProperty('name');
+      expect(curso).toHaveProperty('credits');
+      expect(curso).toHaveProperty('cycle');
+      expect(curso).toHaveProperty('type');
+      expect(curso).toHaveProperty('prerequisites');
+    }
+  });
+
+  // Req 5.1 / 5.2 — unknown valid-format ID treated as approved; returns zero-prereq courses
+  test('unknown valid-format ID ZZZZZZ returns all zero-prereq courses (no 500)', async () => {
+    const res = await request(app)
+      .post('/habilitados')
+      .send({ aprobados: ['ZZZZZZ'] });
+
+    expect(res.status).toBe(200);
+    const esperados = repositorio.listar().filter(c => c.prerequisites.length === 0);
+    expect(res.body).toHaveLength(esperados.length);
+  });
+
+  // Req 3.2 (Calculador path) — exactly 100 elements returns 200
+  test('exactly 100 valid-format elements returns 200', async () => {
+    const codes = Array.from({ length: 100 }, () => '1INF25');
+    const res = await request(app)
+      .post('/habilitados')
+      .send({ aprobados: codes });
+
+    expect(res.status).toBe(200);
+  });
+});

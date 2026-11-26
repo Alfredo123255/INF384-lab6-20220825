@@ -20,7 +20,7 @@ Adds `POST /habilitados` to the Malla INF service. The work splits into four sma
   - Add tests covering each validation error (2.1–2.5, 3.1, 4.1–4.2)
   - _Requisitos: 2.1, 2.2, 2.3, 2.4, 2.5, 3.1, 3.2, 4.1, 4.2, 4.3_
 
-- [ ] 3. Implement the Calculador
+- [x] 3. Implement the Calculador
   - Build `aprobadosSet = new Set(aprobados)` and filter `repositorio.listar()` in one pass: skip courses whose `id` is in the set, include courses whose every prerequisite is in the set
   - Add tests for `aprobados: []` (all zero-prereq courses), `aprobados: ["1INF25","1INF27","1INF49"]` (27 results, includes 1INF29/30/31/32), unknown valid-format ID (`"ZZZZZZ"`), and exactly 100 elements (200 OK)
   - _Requisitos: 1.1, 1.2, 1.3, 1.4, 1.5, 5.1, 5.2_
