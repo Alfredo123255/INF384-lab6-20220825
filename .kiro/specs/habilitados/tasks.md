@@ -30,7 +30,7 @@ Adds `POST /habilitados` to the Malla INF service. The work splits into four sma
   - Do NOT verify that `npm test` passes; it is expected to fail because `src/util/formato.js` has 0 % coverage at this point
   - _Requisitos: 6.1, 6.2_
 
-- [ ] 5. Create `tests/formato.test.js` to cover `src/util/formato.js`
+- [x] 5. Create `tests/formato.test.js` to cover `src/util/formato.js`
   - Write tests for every exported function in `src/util/formato.js` to bring global line coverage to 80 % or above
   - Run `npm test -- --coverage` and confirm it exits 0
   - _Requisitos: 6.1, 6.2_

@@ -48,6 +48,18 @@
         "chatSessionId": "sess_03e15fb8-e59f-400f-bb24-8fb8580802f9",
         "timestamp": 1795731789732
       }
+    ],
+    "5. Create `tests/formato.test.js` to cover `src/util/formato.js`": [
+      {
+        "executionId": "e3cc711f-4905-4bd8-b946-63bdda524155",
+        "chatSessionId": "sess_05d3e86f-db92-4c69-a182-79617bc59b2d",
+        "timestamp": 1795731882213
+      },
+      {
+        "executionId": "e3cc711f-4905-4bd8-b946-63bdda524155",
+        "chatSessionId": "sess_05d3e86f-db92-4c69-a182-79617bc59b2d",
+        "timestamp": 1795731937863
+      }
     ]
   }
 }
