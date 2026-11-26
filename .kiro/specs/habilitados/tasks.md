@@ -12,7 +12,7 @@ Adds `POST /habilitados` to the Malla INF service. The work splits into four sma
   - Add tests in `tests/habilitados.test.js` for invalid JSON body (400) and body > 10 kb (413)
   - _Requisitos: 2.6, 3.3_
 
-- [ ] 2. Create `src/routes/habilitados.js` with the Validador
+- [x] 2. Create `src/routes/habilitados.js` with the Validador
   - Register `router.post('/', handler)` using Express Router
   - Implement the five guard clauses in order: array check → length ≤ 100 → all strings → all match `^[0-9A-Z]{6}$`
   - Return `res.status(400).json({ error: '...' })` with the exact messages from the HTTP contract
