@@ -6,7 +6,7 @@ Adds `POST /habilitados` to the Malla INF service. The work splits into four sma
 
 ## Tasks
 
-- [ ] 1. Update error middleware and body size limit in `src/app.js`
+- [x] 1. Update error middleware and body size limit in `src/app.js`
   - Replace `app.use(express.json())` with `app.use(express.json({ limit: '10kb' }))`
   - Extend the global error handler to return 400 for `SyntaxError` with `{ "error": "JSON inválido" }` and 413 for `entity.too.large` with `{ "error": "el cuerpo excede el tamaño permitido" }`
   - Add tests in `tests/habilitados.test.js` for invalid JSON body (400) and body > 10 kb (413)
