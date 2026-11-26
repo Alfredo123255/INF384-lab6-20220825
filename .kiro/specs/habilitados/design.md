@@ -202,14 +202,7 @@ No error response ever includes a stack trace, file path, or other server-intern
 Tests de ejemplo con Jest + supertest. Se usan múltiples casos en un solo test cuando tiene sentido hacerlo con `test.each`.
 
 **Coverage gate:**  
-`jest.config.js` must include:
-```js
-coverageThreshold: { global: { lines: 80 } }
-```
-`npm test -- --coverage` exits non-zero when coverage falls below 80 %.
-
-**CI adjustment:**  
-`.github/workflows/ci.yml` must change `npm test` to `npm test -- --coverage` to activate the gate on every push/PR.
+`jest.config.js` incluye `collectCoverage: true` y `coverageThreshold: { global: { lines: 80 } }`, así que `npm test` (local y en CI) sale con código ≠ 0 cuando la cobertura global de líneas es menor a 80 %. El `ci.yml` no necesita el flag `--coverage`. Ver la sección "Gates de CI".
 
 **Key test cases:**
 
@@ -231,3 +224,11 @@ coverageThreshold: { global: { lines: 80 } }
 | All unknown valid-format IDs | Example | 200; result equals empty-prereq courses |
 | Arreglo de 5000 códigos válidos (ej. `"1INF25"` repetido) | Edge case | 413, `"el cuerpo excede el tamaño permitido"` — el body (~45 kb) supera el límite de 10 kb; Express lo rechaza antes de llegar al Validador |
 | Body mayor a 10 kb (string aleatorio) | Edge case | 413, `"el cuerpo excede el tamaño permitido"` |
+
+## Gates de CI (`.github/workflows/ci.yml`)
+
+| Gate | Herramienta | Umbral | Bloquea / avisa | Etapa | Razón |
+|------|-------------|--------|-----------------|-------|-------|
+| Secretos | gitleaks 8.24.3 (`gitleaks git . --redact`) sobre **todo el historial** (`fetch-depth: 0`) | Cualquier hallazgo (0 secretos permitidos) | **Bloquea**: el job falla y `build` no corre (`needs`) | Primera etapa, en paralelo con SCA, justo después del checkout y antes de instalar dependencias | Política de TI: "ningún secreto en el repositorio". Un secreto filtrado no se puede deshacer, así que se corta lo antes posible. Se escanea todo el historial porque `gitleaks-action` en un push solo revisa los commits nuevos y no habría detectado la clave del commit inicial. Un hallazgo histórico solo se acepta si la clave fue rotada y se registra en `.gitleaksignore` con su razón. |
+| SCA | `npm audit --audit-level=high --omit=dev` | Severidad **high o critical** en dependencias de producción | **Bloquea** con high/critical; moderate y low solo **avisan** (se ven en el log, pero el job pasa) | Primera etapa, en paralelo con secretos, después de `npm ci` (necesita el `package-lock.json` resuelto) | Política de TI: "ninguna dependencia con vulnerabilidades altas o críticas". Bloquear también moderate/low frenaría el desarrollo por hallazgos sin parche o de bajo impacto. `--omit=dev` porque jest y supertest no llegan a producción. |
+| Cobertura | Jest (`collectCoverage: true`, `coverageThreshold.global.lines: 80`) | Cobertura global de líneas **< 80 %** | **Bloquea**: `npm test` sale con código ≠ 0 | Segunda etapa (`build`), solo si secretos y SCA pasaron | Política de TI: "la cobertura de líneas no baja de 80 %". Corre después de los gates de seguridad porque no tiene sentido probar código que no se puede desplegar. Se mide global (no por archivo) porque así lo define la política. |
