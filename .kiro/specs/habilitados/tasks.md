@@ -25,7 +25,7 @@ Adds `POST /habilitados` to the Malla INF service. The work splits into four sma
   - Add tests for `aprobados: []` (all zero-prereq courses), `aprobados: ["1INF25","1INF27","1INF49"]` (27 results, includes 1INF29/30/31/32), unknown valid-format ID (`"ZZZZZZ"`), and exactly 100 elements (200 OK)
   - _Requisitos: 1.1, 1.2, 1.3, 1.4, 1.5, 5.1, 5.2_
 
-- [ ] 4. Add coverage gate to `jest.config.js`
+- [x] 4. Add coverage gate to `jest.config.js`
   - Add `coverageThreshold: { global: { lines: 80 } }` and `collectCoverage: true` to `jest.config.js`
   - Do NOT verify that `npm test` passes; it is expected to fail because `src/util/formato.js` has 0 % coverage at this point
   - _Requisitos: 6.1, 6.2_
