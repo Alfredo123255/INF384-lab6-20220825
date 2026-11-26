@@ -37,7 +37,7 @@ jobs:
   build:
     name: Build y tests (cobertura >= 80 %)
     runs-on: ubuntu-latest
-    needs: [secretos, sca]
+    needs: [secretos, sca, sast]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,3 +46,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+  sast:
+    name: Gate de SAST (semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar semgrep
+        run: pip install semgrep
+      - name: Analizar código fuente
+        run: semgrep scan --config p/javascript --config p/nodejs --error src/
