@@ -50,8 +50,9 @@ This feature adds a `POST /habilitados` endpoint to the Malla INF service. Given
 
 #### Acceptance Criteria
 
-1. WHEN a POST request is made to `/habilitados` with an `aprobados` array containing more than 100 elements, THE Validador SHALL return HTTP 400 with a JSON body `{ "error": "aprobados excede el máximo permitido de 100 elementos" }`.
+1. WHEN a POST request is made to `/habilitados` with a body that does not exceed 10 kb and the `aprobados` array contains more than 100 elements (e.g. 101 elements), THE Validador SHALL return HTTP 400 with a JSON body `{ "error": "aprobados excede el máximo permitido de 100 elementos" }`.
 2. WHEN a POST request is made to `/habilitados` with an `aprobados` array containing exactly 100 elements, THE Validador SHALL allow the request to proceed to the Calculador without returning an error.
+3. IF the request body exceeds 10 kb in size (e.g. `aprobados` with 5000 valid-format codes, as observed in security finding 1), THEN THE API SHALL return HTTP 413 with a JSON body `{ "error": "el cuerpo excede el tamaño permitido" }` without exposing any stack trace or server-internal detail in the response body.
 
 ### Requirement 4: Reject course IDs with invalid characters
 
