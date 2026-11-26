@@ -2,13 +2,20 @@
 
 ## Requisito → gate → evidencia
 
-| Requisito | Gate (herramienta y umbral) | Bloquea / avisa | Etapa | Run fallido | Run corregido |
+| Requisito | Gate o test (herramienta y umbral) | Bloquea / avisa | Etapa | Evidencia de falla | Evidencia de corrección |
 | --- | --- | --- | --- | --- | --- |
-| | | | | | |
+| **R3 – Seguridad (hallazgo 1: lista de 5 000 códigos)** | Tests `body exceeding 10 kb returns 413…` (5 000 códigos → 413) y `101 elements returns 400 aprobados excede el maximo permitido` en `tests/habilitados.test.js` | Bloquea (falla `npm test`) | build | Antes de la tarea 1 no había límite de body ni ruta: el test fallaba (respuesta distinta de 413/400) | Commits `28ef6c5` (límite 10 kb → 413) y `82ade50` (límite 100 elementos → 400); run verde: https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45905717337 |
+| **R4 – Seguridad (hallazgo 2: `1INF30<script>` → 500 con stack trace)** | Tests `code with special characters returns 400 codigo invalido en aprobados`, `400 error body contains only the error field` y `responde 500 con JSON genérico ante un error no controlado` | Bloquea (falla `npm test`) | build | Antes de la tarea 2 el código no se validaba: el test fallaba (no respondía 400) | Commit `82ade50` (regex `^[0-9A-Z]{6}$` → 400 solo con `error`); run verde: https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45905717337 |
+| **R2 – Seguridad (hallazgo 3: `{"aprobados": "1INF25"}` → 200)** | Tests `aprobados is a string returns 400 aprobados debe ser un arreglo` (y number, boolean, absent, elemento no string, `invalid JSON body returns 400`) | Bloquea (falla `npm test`) | build | Antes de la tarea 2 no había validación de tipo: el test fallaba (no respondía 400) | Commit `82ade50`; run verde: https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45905717337 |
+| **R6 – Calidad (cobertura ≥ 80 %)** | Jest `coverageThreshold.global.lines: 80` | Bloquea | build | https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45904543828 — causa: cobertura de líneas 76,13 %, `src/util/formato.js` con 0 % | https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45904799613 — se agregó `tests/formato.test.js`, cobertura 96,59 % |
+| **Política: sin dependencias high/critical** | `npm audit --audit-level=high --omit=dev` | Bloquea (high/critical); avisa (moderate/low) | Primera etapa, después de `npm ci` | https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45905050256 — causa: `lodash 4.17.20` con vulnerabilidades altas (command injection, ReDoS, prototype pollution) | https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45905361191 — `lodash` actualizado a `^4.18.1` (job SCA en verde) |
+| **Política: ningún secreto en el repo** | gitleaks 8.24.3 sobre todo el historial (`fetch-depth: 0`), 0 hallazgos permitidos | Bloquea | Primera etapa, después del checkout | https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45905050256 — causa: `CATALOGO_API_KEY` en `config/ejemplo.env` (commit `7506fec`, regla `generic-api-key`) | https://github.com/Alfredo123255/INF384-lab6-20220825/actions/runs/45905717337 — clave rotada, placeholder en `config/ejemplo.env` y hallazgo histórico en `.gitleaksignore` con su razón |
+
+**Nota sobre el modo de escaneo:** `gitleaks-action`, en un push, solo escanea los commits del push. La clave estaba en el commit inicial (`7506fec`), así que con esa acción el run habría salido verde sin detectarla. Por eso el gate usa el binario de gitleaks con `git` sobre todo el historial. Como la clave sigue en el historial aunque se borre del archivo, la corrección es rotarla y registrar el fingerprint en `.gitleaksignore`.
 
 ## Cambios a la propuesta de Kiro
 
 | Documento | Qué propuso Kiro | Qué cambiaste | Por qué |
 | --- | --- | --- | --- |
-| | | | |
-| | | | |
+| design.md | Agregar la dependencia `fast-check` para property-based tests | Se eliminó; solo tests de ejemplo con Jest + supertest (`test.each`) | El steering prohíbe dependencias nuevas sin necesidad y cada dependencia agrega superficie al gate de SCA. Los tests de ejemplo bastan para tener un test por criterio. |
+| requirements.md / design.md | Límite de 500 elementos y, luego, "5 000 códigos → 400" | Límite de 100 elementos (101 → 400) y 5 000 códigos → 413 por el límite de body de 10 kb | La malla tiene 87 cursos, así que 500 aceptaba listas que nunca son válidas. Además, 5 000 códigos pesan ~45 kb y Express los corta antes del validador, así que el test esperado era incorrecto. |
